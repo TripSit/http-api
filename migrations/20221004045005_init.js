@@ -17,19 +17,41 @@ exports.up = async function up(knex) {
 
       table
         .string('email', 320)
-        .notNullable()
-        .unique()
-        .index();
+        .unique();
 
       table
         .string('nick', 32)
-        .notNullable()
-        .unique()
-        .index();
+        .unique();
+
+      table.text('passwordHash');
+      table.text('discordId');
+      table.text('timezone');
+      table.timestamp('birthday');
 
       table
-        .text('passwordHash')
+        .integer('karmaGiven')
+        .unsigned()
         .notNullable();
+
+      table
+        .integer('karmaReceived')
+        .unsigned()
+        .notNullable();
+
+      table
+        .integer('sparklePoints')
+        .unsigned()
+        .notNullable();
+
+      table
+        .boolean('discordBotBan')
+        .notNullable()
+        .defaultTo(false);
+
+      table
+        .boolean('ticketBan')
+        .notNullable()
+        .defaultTo(false);
 
       table
         .timestamp('lastSeen')
@@ -38,6 +60,110 @@ exports.up = async function up(knex) {
 
       table
         .timestamp('joinedAt')
+        .notNullable()
+        .defaultTo(knex.fn.now());
+    })
+    .createTable('userTickets', table => {
+      table
+        .uuid('id')
+        .notNullable()
+        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .primary();
+
+      table
+        .uuid('userId')
+        .notNullable()
+        .references('id')
+        .inTable('users');
+
+      table
+        .text('description')
+        .notNullable();
+
+      table
+        .text('threadId')
+        .notNullable();
+
+      table
+        .enum('type', [
+          'APPEAL',
+          'TRIPSIT',
+          'TECH',
+          'FEEDBACK',
+        ], {
+          useNative: true,
+          enumName: 'ticket_type',
+        });
+
+      table
+        .enum('status', [
+          'OPEN',
+          'CLOSED',
+          'BLOCKED',
+          'PAUSED',
+        ], {
+          useNative: true,
+          enumName: 'ticket_status',
+        })
+        .notNullable();
+
+      table
+        .text('firstMessageId')
+        .notNullable();
+
+      table.timestamp('closedAt');
+
+      table
+        .timestamp('createdAt')
+        .notNullable()
+        .defaultTo(knex.fn.now());
+    })
+    .createTable('userExperience', table => {
+      table
+        .uuid('id')
+        .notNullable()
+        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .primary();
+
+      table
+        .uuid('userId')
+        .notNullable()
+        .references('id')
+        .inTable('users');
+
+      table
+        .enum('type', [
+          'TOTAL',
+          'GENERAL',
+          'TRIPSITTER',
+          'DEVELOPER',
+          'TEAM',
+          'IGNORED',
+        ], {
+          useNative: true,
+          enumName: 'experience_type',
+        });
+
+      table
+        .integer('level')
+        .unsigned()
+        .notNullable();
+
+      table
+        .integer('levelPoints')
+        .unsigned()
+        .notNullable();
+
+      table.timestamp('lastMessageAt');
+      table.text('lastMessageChannel');
+
+      table
+        .boolean('mee6Converted')
+        .notNullable()
+        .defaultTo(false);
+
+      table
+        .timestamp('createdAt')
         .notNullable()
         .defaultTo(knex.fn.now());
     })
@@ -250,10 +376,15 @@ exports.down = async function down(knex) {
     .dropTableIfExists('drugArticles')
     .dropTableIfExists('drugNames')
     .dropTableIfExists('drugs')
+    .dropTableIfExists('userExperience')
+    .dropTableIfExists('userTickets')
     .dropTableIfExists('users');
 
   await knex.raw('DROP TYPE IF EXISTS "drug_roa"');
   await knex.raw('DROP TYPE IF EXISTS "drug_name_type"');
+  await knex.raw('DROP TYPE IF EXISTS "experience_type"');
+  await knex.raw('DROP TYPE IF EXISTS "ticket_type"');
+  await knex.raw('DROP TYPE IF EXISTS "ticket_status"');
 
   await knex.raw('DROP EXTENSION IF EXISTS "uuid-ossp"');
 };
