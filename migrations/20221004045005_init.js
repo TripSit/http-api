@@ -8,7 +8,60 @@ exports.up = async function up(knex) {
   await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
 
   await knex.schema
+    .createTable('guilds', table => {
+      table
+        .uuid('id')
+        .notNullable()
+        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .primary();
 
+      table
+        .text('discordId')
+        .unique();
+
+      table
+        .timestamp('joinedAt')
+        .notNullable()
+        .defaultTo(knex.fn.now());
+
+      table
+        .boolean('discordBotBan')
+        .notNullable()
+        .defaultTo(false);
+    })
+    .createTable('reactionRoles', table => {
+      table
+        .uuid('id')
+        .notNullable()
+        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .primary();
+
+      table
+        .text('guildId')
+        .notNullable()
+        .references('discordId')
+        .inTable('guilds');
+
+      table
+        .text('name')
+        .notNullable();
+
+      table
+        .text('channelId')
+        .notNullable();
+
+      table
+        .text('messageId')
+        .notNullable();
+
+      table
+        .text('reactionId')
+        .notNullable();
+
+      table
+        .text('roleId')
+        .notNullable();
+    })
     .createTable('users', table => {
       table
         .uuid('id')
@@ -18,31 +71,45 @@ exports.up = async function up(knex) {
 
       table
         .string('email', 320)
+        .unique()
+        .nullable();
+
+      table
+        .string('displayName', 50);
+
+      table
+        .text('passwordHash')
+        .nullable();
+
+      table
+        .text('discordId')
         .unique();
 
       table
-        .string('nick', 32)
-        .unique();
+        .text('timezone')
+        .nullable();
 
-      table.text('passwordHash');
-      table.text('discordId');
-      table.text('timezone');
-      table.timestamp('birthday');
+      table
+        .timestamp('birthday')
+        .nullable();
 
       table
         .integer('karmaGiven')
         .unsigned()
-        .notNullable();
+        .notNullable()
+        .defaultTo(0);
 
       table
         .integer('karmaReceived')
         .unsigned()
-        .notNullable();
+        .notNullable()
+        .defaultTo(0);
 
       table
         .integer('sparklePoints')
         .unsigned()
-        .notNullable();
+        .notNullable()
+        .defaultTo(0);
 
       table
         .boolean('discordBotBan')
@@ -72,9 +139,9 @@ exports.up = async function up(knex) {
         .primary();
 
       table
-        .uuid('userId')
+        .string('discordId')
         .notNullable()
-        .references('id')
+        .references('discordId')
         .inTable('users');
 
       table
@@ -102,6 +169,7 @@ exports.up = async function up(knex) {
           'CLOSED',
           'BLOCKED',
           'PAUSED',
+          'RESOLVED',
         ], {
           useNative: true,
           enumName: 'ticket_status',
@@ -112,7 +180,8 @@ exports.up = async function up(knex) {
         .text('firstMessageId')
         .notNullable();
 
-      table.timestamp('closedAt');
+      table
+        .timestamp('closedAt');
 
       table
         .timestamp('createdAt')
@@ -127,9 +196,9 @@ exports.up = async function up(knex) {
         .primary();
 
       table
-        .uuid('userId')
+        .string('discordId')
         .notNullable()
-        .references('id')
+        .references('discordId')
         .inTable('users');
 
       table
@@ -155,8 +224,16 @@ exports.up = async function up(knex) {
         .unsigned()
         .notNullable();
 
-      table.timestamp('lastMessageAt');
-      table.text('lastMessageChannel');
+      table
+        .integer('totalPoints')
+        .unsigned()
+        .notNullable();
+
+      table
+        .timestamp('lastMessageAt');
+
+      table
+        .text('lastMessageChannel');
 
       table
         .boolean('mee6Converted')
@@ -176,9 +253,9 @@ exports.up = async function up(knex) {
         .primary();
 
       table
-        .uuid('actorId')
+        .string('actorId')
         .notNullable()
-        .references('id')
+        .references('discordId')
         .inTable('users');
 
       table
@@ -201,9 +278,9 @@ exports.up = async function up(knex) {
         .notNullable();
 
       table
-        .uuid('targetId')
+        .text('targetId')
         .notNullable()
-        .references('id')
+        .references('discordId')
         .inTable('users');
 
       table
@@ -436,7 +513,9 @@ exports.down = async function down(knex) {
     .dropTableIfExists('userExperience')
     .dropTableIfExists('userTickets')
     .dropTableIfExists('userHistory')
-    .dropTableIfExists('users');
+    .dropTableIfExists('users')
+    .dropTableIfExists('reactionRoles')
+    .dropTableIfExists('guilds');
 
   await knex.raw('DROP TYPE IF EXISTS "command_type"');
   await knex.raw('DROP TYPE IF EXISTS "drug_roa"');
