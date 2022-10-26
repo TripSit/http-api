@@ -8,60 +8,6 @@ exports.up = async function up(knex) {
   await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
 
   await knex.schema
-    .createTable('guilds', table => {
-      table
-        .uuid('id')
-        .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
-        .primary();
-
-      table
-        .text('discordId')
-        .unique();
-
-      table
-        .timestamp('joinedAt')
-        .notNullable()
-        .defaultTo(knex.fn.now());
-
-      table
-        .boolean('discordBotBan')
-        .notNullable()
-        .defaultTo(false);
-    })
-    .createTable('reactionRoles', table => {
-      table
-        .uuid('id')
-        .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
-        .primary();
-
-      table
-        .text('guildId')
-        .notNullable()
-        .references('discordId')
-        .inTable('guilds');
-
-      table
-        .text('name')
-        .notNullable();
-
-      table
-        .text('channelId')
-        .notNullable();
-
-      table
-        .text('messageId')
-        .notNullable();
-
-      table
-        .text('reactionId')
-        .notNullable();
-
-      table
-        .text('roleId')
-        .notNullable();
-    })
     .createTable('users', table => {
       table
         .uuid('id')
@@ -131,6 +77,202 @@ exports.up = async function up(knex) {
         .notNullable()
         .defaultTo(knex.fn.now());
     })
+    .createTable('drugs', table => {
+      table
+        .uuid('id')
+        .notNullable()
+        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .primary();
+
+      table.text('summary');
+      table.text('psychonautWikiUrl');
+      table.text('errowidExperiencesUrl');
+
+      table
+        .uuid('lastUpdatedByUid')
+        .notNullable()
+        .references('id')
+        .inTable('users');
+
+      table
+        .timestamp('updatedAt')
+        .notNullable()
+        .defaultTo(knex.fn.now());
+
+      table
+        .timestamp('createdAt')
+        .notNullable()
+        .defaultTo(knex.fn.now());
+    })
+    .createTable('drugNames', table => {
+      table
+        .uuid('id')
+        .notNullable()
+        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .primary();
+
+      table
+        .uuid('drugUid')
+        .notNullable()
+        .references('id')
+        .inTable('drugs')
+        .onDelete('CASCADE');
+
+      table
+        .text('name')
+        .notNullable();
+
+      // TODO: Check constraint
+      table
+        .boolean('isDefault')
+        .notNullable()
+        .defaultTo(false);
+
+      table
+        .enum('type', [
+          'COMMON',
+          'SUBSTITUTIVE',
+          'SYSTEMATIC',
+        ], {
+          useNative: true,
+          enumName: 'drug_name_type',
+        })
+        .notNullable()
+        .defaultTo('COMMON');
+    })
+    .createTable('drugArticles', table => {
+      table
+        .uuid('id')
+        .notNullable()
+        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .primary();
+
+      table
+        .uuid('drugUid')
+        .notNullable()
+        .references('id')
+        .inTable('drugs')
+        .onDelete('CASCADE');
+
+      table
+        .string('url', 2048)
+        .notNullable();
+
+      table
+        .text('title')
+        .notNullable();
+
+      table.text('description');
+      table.timestamp('publishedAt');
+
+      table
+        .boolean('deleted')
+        .notNullable()
+        .defaultTo(false);
+
+      table
+        .uuid('postedByUid')
+        .notNullable()
+        .references('id')
+        .inTable('users');
+
+      table
+        .timestamp('createdAt')
+        .notNullable()
+        .defaultTo(knex.fn.now());
+    })
+    .createTable('drugVariants', table => {
+      table
+        .uuid('id')
+        .notNullable()
+        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .primary();
+
+      table
+        .uuid('drugUid')
+        .notNullable()
+        .references('id')
+        .inTable('drugs')
+        .onDelete('CASCADE');
+
+      table.text('name');
+      table.text('description');
+
+      // TODO: Check constraint
+      table
+        .boolean('default')
+        .notNullable()
+        .defaultTo(false);
+
+      table
+        .uuid('lastUpdatedByUid')
+        .notNullable()
+        .references('id')
+        .inTable('users');
+
+      table
+        .timestamp('updatedAt')
+        .notNullable()
+        .defaultTo(knex.fn.now());
+
+      table
+        .timestamp('createdAt')
+        .notNullable()
+        .defaultTo(knex.fn.now());
+    })
+    .createTable('drugVariantRoas', table => {
+      table
+        .uuid('id')
+        .notNullable()
+        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .primary();
+
+      table
+        .uuid('drugVariantUid')
+        .notNullable()
+        .references('id')
+        .inTable('drugVariants')
+        .onDelete('CASCADE');
+
+      table
+        .enum('route', [
+          'ORAL',
+          'INSUFFLATED',
+          'INHALED',
+          'TOPICAL',
+          'SUBLINGUAL',
+          'BUCCAL',
+          'RECTAL',
+          'INTRAMUSCULAR',
+          'INTRAVENOUS',
+          'SUBCUTANIOUS',
+          'TRANSDERMAL',
+        ], {
+          useNative: true,
+          enumName: 'drug_roa',
+        })
+        .notNullable();
+
+      table.float('doseThreshold');
+      table.float('doseLight');
+      table.float('doseCommon');
+      table.float('doseStrong');
+      table.float('doseHeavy');
+      table.text('doseWarning');
+
+      table.float('durationTotalMin');
+      table.float('durationTotalMax');
+      table.float('durationOnsetMin');
+      table.float('durationOnsetMax');
+      table.float('durationComeupMin');
+      table.float('durationComeupMax');
+      table.float('durationPeakMin');
+      table.float('durationPeakMax');
+      table.float('durationOffsetMin');
+      table.float('durationOffsetMax');
+      table.float('durationAfterEffectsMin');
+      table.float('durationAfterEffectsMax');
+    })
     .createTable('userTickets', table => {
       table
         .uuid('id')
@@ -139,9 +281,9 @@ exports.up = async function up(knex) {
         .primary();
 
       table
-        .string('discordId')
+        .uuid('userUid')
         .notNullable()
-        .references('discordId')
+        .references('id')
         .inTable('users');
 
       table
@@ -196,9 +338,9 @@ exports.up = async function up(knex) {
         .primary();
 
       table
-        .string('discordId')
+        .uuid('userUid')
         .notNullable()
-        .references('discordId')
+        .references('id')
         .inTable('users');
 
       table
@@ -245,7 +387,7 @@ exports.up = async function up(knex) {
         .notNullable()
         .defaultTo(knex.fn.now());
     })
-    .createTable('userHistory', table => {
+    .createTable('userModHistory', table => {
       table
         .uuid('id')
         .notNullable()
@@ -253,9 +395,9 @@ exports.up = async function up(knex) {
         .primary();
 
       table
-        .string('actorId')
+        .uuid('actorUid')
         .notNullable()
-        .references('discordId')
+        .references('id')
         .inTable('users');
 
       table
@@ -278,9 +420,9 @@ exports.up = async function up(knex) {
         .notNullable();
 
       table
-        .text('targetId')
+        .uuid('targetUid')
         .notNullable()
-        .references('discordId')
+        .references('id')
         .inTable('users');
 
       table
@@ -288,175 +430,33 @@ exports.up = async function up(knex) {
         .nullable();
 
       table
-        .uuid('pubReason')
+        .text('pubReason')
         .nullable();
 
       table
-        .uuid('privReason')
+        .text('privReason')
         .nullable();
-      table.timestamp('closedAt');
+
+      table
+        .timestamp('closedAt');
 
       table
         .timestamp('createdAt')
         .notNullable()
         .defaultTo(knex.fn.now());
     })
-    .createTable('drugs', table => {
+    .createTable('userDrugHistory', table => {
       table
         .uuid('id')
         .notNullable()
         .defaultTo(knex.raw('uuid_generate_v4()'))
         .primary();
 
-      table.text('summary');
-      table.text('psychonautWikiUrl');
-      table.text('errowidExperiencesUrl');
-
       table
-        .uuid('lastUpdatedBy')
+        .uuid('userUid')
         .notNullable()
         .references('id')
         .inTable('users');
-
-      table
-        .timestamp('updatedAt')
-        .notNullable()
-        .defaultTo(knex.fn.now());
-
-      table
-        .timestamp('createdAt')
-        .notNullable()
-        .defaultTo(knex.fn.now());
-    })
-    .createTable('drugNames', table => {
-      table
-        .uuid('id')
-        .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
-        .primary();
-
-      table
-        .uuid('drugId')
-        .notNullable()
-        .references('id')
-        .inTable('drugs')
-        .onDelete('CASCADE');
-
-      table
-        .text('name')
-        .notNullable();
-
-      // TODO: Check constraint
-      table
-        .boolean('isDefault')
-        .notNullable()
-        .defaultTo(false);
-
-      table
-        .enum('type', [
-          'COMMON',
-          'SUBSTITUTIVE',
-          'SYSTEMATIC',
-        ], {
-          useNative: true,
-          enumName: 'drug_name_type',
-        })
-        .notNullable()
-        .defaultTo('COMMON');
-    })
-    .createTable('drugArticles', table => {
-      table
-        .uuid('id')
-        .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
-        .primary();
-
-      table
-        .uuid('drugId')
-        .notNullable()
-        .references('id')
-        .inTable('drugs')
-        .onDelete('CASCADE');
-
-      table
-        .string('url', 2048)
-        .notNullable();
-
-      table
-        .text('title')
-        .notNullable();
-
-      table.text('description');
-      table.timestamp('publishedAt');
-
-      table
-        .boolean('deleted')
-        .notNullable()
-        .defaultTo(false);
-
-      table
-        .uuid('postedBy')
-        .notNullable()
-        .references('id')
-        .inTable('users');
-
-      table
-        .timestamp('createdAt')
-        .notNullable()
-        .defaultTo(knex.fn.now());
-    })
-    .createTable('drugVariants', table => {
-      table
-        .uuid('id')
-        .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
-        .primary();
-
-      table
-        .uuid('drugId')
-        .notNullable()
-        .references('id')
-        .inTable('drugs')
-        .onDelete('CASCADE');
-
-      table.text('name');
-      table.text('description');
-
-      // TODO: Check constraint
-      table
-        .boolean('default')
-        .notNullable()
-        .defaultTo(false);
-
-      table
-        .uuid('lastUpdatedBy')
-        .notNullable()
-        .references('id')
-        .inTable('users');
-
-      table
-        .timestamp('updatedAt')
-        .notNullable()
-        .defaultTo(knex.fn.now());
-
-      table
-        .timestamp('createdAt')
-        .notNullable()
-        .defaultTo(knex.fn.now());
-    })
-    .createTable('drugVariantRoas', table => {
-      table
-        .uuid('id')
-        .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
-        .primary();
-
-      table
-        .uuid('drugVariantId')
-        .notNullable()
-        .references('id')
-        .inTable('drugVariants')
-        .onDelete('CASCADE');
 
       table
         .enum('route', [
@@ -473,29 +473,104 @@ exports.up = async function up(knex) {
           'TRANSDERMAL',
         ], {
           useNative: true,
+          existingType: true,
           enumName: 'drug_roa',
         })
         .notNullable();
 
-      table.float('doseThreshold');
-      table.float('doseLight');
-      table.float('doseCommon');
-      table.float('doseStrong');
-      table.float('doseHeavy');
-      table.text('doseWarning');
+      table
+        .float('dose')
+        .notNullable();
 
-      table.float('durationTotalMin');
-      table.float('durationTotalMax');
-      table.float('durationOnsetMin');
-      table.float('durationOnsetMax');
-      table.float('durationComeupMin');
-      table.float('durationComeupMax');
-      table.float('durationPeakMin');
-      table.float('durationPeakMax');
-      table.float('durationOffsetMin');
-      table.float('durationOffsetMax');
-      table.float('durationAfterEffectsMin');
-      table.float('durationAfterEffectsMax');
+      table
+        .uuid('drugUid')
+        .notNullable()
+        .references('id')
+        .inTable('drugs');
+
+      table
+        .enum('units', [
+          'MG',
+          'ML',
+          'µG',
+          'G',
+          'OZ',
+          'FLOZ',
+          'TABS',
+          'CAPS',
+          'DROPS',
+          'PILLS',
+          'PATCHES',
+          'SPRAYS',
+        ], {
+          useNative: true,
+          enumName: 'drug_unit',
+        })
+        .notNullable();
+
+      table
+        .timestamp('doseDate')
+        .notNullable();
+    })
+    .createTable('guilds', table => {
+      table
+        .uuid('id')
+        .notNullable()
+        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .primary();
+
+      table
+        .text('discordId')
+        .unique();
+
+      table
+        .timestamp('joinedAt')
+        .notNullable()
+        .defaultTo(knex.fn.now());
+
+      table
+        .boolean('discordBotBan')
+        .notNullable()
+        .defaultTo(false);
+
+      table
+        .timestamp('dramaDate');
+
+      table
+        .text('dramaReason');
+    })
+    .createTable('reactionRoles', table => {
+      table
+        .uuid('id')
+        .notNullable()
+        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .primary();
+
+      table
+        .uuid('guildUid')
+        .notNullable()
+        .references('id')
+        .inTable('guilds');
+
+      table
+        .text('name')
+        .notNullable();
+
+      table
+        .text('channelId')
+        .notNullable();
+
+      table
+        .text('messageId')
+        .notNullable();
+
+      table
+        .text('reactionId')
+        .notNullable();
+
+      table
+        .text('roleId')
+        .notNullable();
     });
 };
 
@@ -512,11 +587,13 @@ exports.down = async function down(knex) {
     .dropTableIfExists('drugs')
     .dropTableIfExists('userExperience')
     .dropTableIfExists('userTickets')
-    .dropTableIfExists('userHistory')
+    .dropTableIfExists('userModHistory')
+    .dropTableIfExists('userDrugHistory')
     .dropTableIfExists('users')
     .dropTableIfExists('reactionRoles')
     .dropTableIfExists('guilds');
 
+  await knex.raw('DROP TYPE IF EXISTS "drug_unit"');
   await knex.raw('DROP TYPE IF EXISTS "command_type"');
   await knex.raw('DROP TYPE IF EXISTS "drug_roa"');
   await knex.raw('DROP TYPE IF EXISTS "drug_name_type"');

@@ -120,7 +120,7 @@ exports.seed = async function seed(knex) {
     knex('users')
       .insert({
         email: 'moonbear@tripsit.me',
-        nick: 'Moonbear',
+        displayName: 'Moonbear',
         passwordHash: await argon.hash('P@ssw0rd'),
       })
       .returning(['id'])
@@ -128,12 +128,12 @@ exports.seed = async function seed(knex) {
     knex('users').insert([
       {
         email: 'snowcolton@hotmail.com',
-        nick: 'SevenCats',
+        displayName: 'SevenCats',
         passwordHash: await argon.hash('P@ssw0rd'),
       },
       {
         email: 'foo@example.com',
-        nick: 'AJAr',
+        displayName: 'AJAr',
         passwordHash: await argon.hash('P@ssw0rd'),
       },
     ]),
@@ -144,7 +144,7 @@ exports.seed = async function seed(knex) {
       summary: (drug.summary || '').trim() || null,
       psychonautWikiUrl: (drug.url || '').trim() || null,
       errowidExperiencesUrl: (drug.experiencesUrl || '').trim() || null,
-      lastUpdatedBy: defaultUserId,
+      lastUpdatedByUid: defaultUserId,
     })))
     .returning(['id'])
     .then(records => records.map(({ id }, i) => ({
@@ -154,21 +154,21 @@ exports.seed = async function seed(knex) {
 
   await knex('drugNames').insert(drugRecords.flatMap(drug => drug.aliases
     .map(alias => ({
-      drugId: drug.id,
+      drugUid: drug.id,
       name: alias.trim(),
       isDefault: false,
     }))
     .concat({
-      drugId: drug.id,
+      drugUid: drug.id,
       name: drug.name.trim(),
       isDefault: true,
     })));
 
   const variantRecords = await knex('drugVariants')
     .insert(drugRecords.map(drug => ({
-      drugId: drug.id,
+      drugUid: drug.id,
       default: true,
-      lastUpdatedBy: defaultUserId,
+      lastUpdatedByUid: defaultUserId,
     })))
     .returning('*');
 
@@ -178,7 +178,7 @@ exports.seed = async function seed(knex) {
       route: name.toLowerCase().replace(/:$/, '').trim(),
     }))
     .map(roa => ({
-      drugVariantId: variantRecords.find(variant => variant.drugId === drug.id).id,
+      drugVariantUid: variantRecords.find(variant => variant.drugUid === drug.id).id,
       route: (routeMap[roa.route] || roa.route).trim().toUpperCase(),
 
       doseThreshold: parseDose('threshold', roa.dosage),
