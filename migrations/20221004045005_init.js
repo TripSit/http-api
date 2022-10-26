@@ -8,6 +8,7 @@ exports.up = async function up(knex) {
   await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
 
   await knex.schema
+
     .createTable('users', table => {
       table
         .uuid('id')
@@ -161,6 +162,62 @@ exports.up = async function up(knex) {
         .boolean('mee6Converted')
         .notNullable()
         .defaultTo(false);
+
+      table
+        .timestamp('createdAt')
+        .notNullable()
+        .defaultTo(knex.fn.now());
+    })
+    .createTable('userHistory', table => {
+      table
+        .uuid('id')
+        .notNullable()
+        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .primary();
+
+      table
+        .uuid('actorId')
+        .notNullable()
+        .references('id')
+        .inTable('users');
+
+      table
+        .enum('command', [
+          'BAN',
+          'UNBAN',
+          'UNDERBAN',
+          'UNUNDERBAN',
+          'WARN',
+          'NOTE',
+          'TIMEOUT',
+          'UNTIMEOUT',
+          'KICK',
+          'INFO',
+          'REPORT',
+        ], {
+          useNative: true,
+          enumName: 'command_type',
+        })
+        .notNullable();
+
+      table
+        .uuid('targetId')
+        .notNullable()
+        .references('id')
+        .inTable('users');
+
+      table
+        .integer('duration')
+        .nullable();
+
+      table
+        .uuid('pubReason')
+        .nullable();
+
+      table
+        .uuid('privReason')
+        .nullable();
+      table.timestamp('closedAt');
 
       table
         .timestamp('createdAt')
@@ -378,8 +435,10 @@ exports.down = async function down(knex) {
     .dropTableIfExists('drugs')
     .dropTableIfExists('userExperience')
     .dropTableIfExists('userTickets')
+    .dropTableIfExists('userHistory')
     .dropTableIfExists('users');
 
+  await knex.raw('DROP TYPE IF EXISTS "command_type"');
   await knex.raw('DROP TYPE IF EXISTS "drug_roa"');
   await knex.raw('DROP TYPE IF EXISTS "drug_name_type"');
   await knex.raw('DROP TYPE IF EXISTS "experience_type"');
