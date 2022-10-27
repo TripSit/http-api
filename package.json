@@ -13,8 +13,8 @@
     "migrate": "knex migrate:latest",
     "migrate:seed": "knex seed:run"
   },
-  "authors": [
-    "SevenCats",
+  "author": "SevenCats",
+  "contributors": [
     "Moonbear"
   ],
   "license": "Apache-2.0",
