@@ -84,7 +84,7 @@ export enum Table {
   KnexMigrations = "knex_migrations",
   KnexMigrationsLock = "knex_migrations_lock",
   ReactionRoles = "reaction_roles",
-  UserDrugHistory = "user_drug_history",
+  UserDoseHistory = "user_dose_history",
   UserExperience = "user_experience",
   UserModHistory = "user_mod_history",
   UserTickets = "user_tickets",
@@ -186,7 +186,7 @@ export type ReactionRoles = {
   role_id: string;
 };
 
-export type UserDrugHistory = {
+export type UserDoseHistory = {
   id: string;
   user_id: string;
   route: DrugRoa;
@@ -238,9 +238,9 @@ export type Users = {
   email: string | null;
   password_hash: string | null;
   display_name: string | null;
-  discord_account_name: string | null;
-  irc_account_name: string | null;
-  matrix_account_name: string | null;
+  discord_id: string | null;
+  irc_id: string | null;
+  matrix_id: string | null;
   timezone: string | null;
   birthday: Date | null;
   karma_given: number;

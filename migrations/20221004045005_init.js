@@ -26,15 +26,15 @@ exports.up = async function up(knex) {
         .text('displayName');
 
       table
-        .text('discordAccountName')
+        .text('discordId')
         .unique();
 
       table
-        .text('ircAccountName')
+        .text('ircId')
         .unique();
 
       table
-        .text('matrixAccountName')
+        .text('matrixId')
         .unique();
 
       table
@@ -446,7 +446,7 @@ exports.up = async function up(knex) {
         .notNullable()
         .defaultTo(knex.fn.now());
     })
-    .createTable('userDrugHistory', table => {
+    .createTable('userDoseHistory', table => {
       table
         .uuid('id')
         .notNullable()
@@ -582,7 +582,7 @@ exports.down = async function down(knex) {
     .dropTableIfExists('drugArticles')
     .dropTableIfExists('drugNames')
     .dropTableIfExists('userModHistory')
-    .dropTableIfExists('userDrugHistory')
+    .dropTableIfExists('userDoseHistory')
     .dropTableIfExists('drugs')
     .dropTableIfExists('userExperience')
     .dropTableIfExists('userTickets')
