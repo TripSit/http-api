@@ -21,7 +21,6 @@
     "apollo-server-express": "^3.10.2",
     "argon2": "^0.29.1",
     "datasource-sql": "^2.0.1",
-    "discord.js": "^14.6.0",
     "dotenv": "^16.0.3",
     "express": "^4.18.1",
     "express-joi-validation": "^5.0.1",
