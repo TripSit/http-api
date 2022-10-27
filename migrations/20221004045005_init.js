@@ -23,6 +23,9 @@ exports.up = async function up(knex) {
         .text('passwordHash');
 
       table
+        .text('displayName');
+
+      table
         .text('discordAccountName')
         .unique();
 
@@ -90,7 +93,7 @@ exports.up = async function up(knex) {
       table.text('errowidExperiencesUrl');
 
       table
-        .uuid('lastUpdatedBy')
+        .uuid('lastUpdatedById')
         .notNullable()
         .references('id')
         .inTable('users');
