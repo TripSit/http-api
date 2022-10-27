@@ -17,27 +17,28 @@ exports.up = async function up(knex) {
 
       table
         .string('email', 320)
-        .unique()
-        .nullable();
-
-      table
-        .string('displayName', 50);
-
-      table
-        .text('passwordHash')
-        .nullable();
-
-      table
-        .text('discordId')
         .unique();
 
       table
-        .text('timezone')
-        .nullable();
+        .text('passwordHash');
 
       table
-        .timestamp('birthday')
-        .nullable();
+        .text('discordAccountName')
+        .unique();
+
+      table
+        .text('ircAccountName')
+        .unique();
+
+      table
+        .text('matrixAccountName')
+        .unique();
+
+      table
+        .text('timezone');
+
+      table
+        .timestamp('birthday');
 
       table
         .integer('karmaGiven')
@@ -89,7 +90,7 @@ exports.up = async function up(knex) {
       table.text('errowidExperiencesUrl');
 
       table
-        .uuid('lastUpdatedByUid')
+        .uuid('lastUpdatedBy')
         .notNullable()
         .references('id')
         .inTable('users');
@@ -112,7 +113,7 @@ exports.up = async function up(knex) {
         .primary();
 
       table
-        .uuid('drugUid')
+        .uuid('drugId')
         .notNullable()
         .references('id')
         .inTable('drugs')
@@ -148,7 +149,7 @@ exports.up = async function up(knex) {
         .primary();
 
       table
-        .uuid('drugUid')
+        .uuid('drugId')
         .notNullable()
         .references('id')
         .inTable('drugs')
@@ -171,7 +172,7 @@ exports.up = async function up(knex) {
         .defaultTo(false);
 
       table
-        .uuid('postedByUid')
+        .uuid('postedById')
         .notNullable()
         .references('id')
         .inTable('users');
@@ -189,7 +190,7 @@ exports.up = async function up(knex) {
         .primary();
 
       table
-        .uuid('drugUid')
+        .uuid('drugId')
         .notNullable()
         .references('id')
         .inTable('drugs')
@@ -205,7 +206,7 @@ exports.up = async function up(knex) {
         .defaultTo(false);
 
       table
-        .uuid('lastUpdatedByUid')
+        .uuid('lastUpdatedById')
         .notNullable()
         .references('id')
         .inTable('users');
@@ -228,7 +229,7 @@ exports.up = async function up(knex) {
         .primary();
 
       table
-        .uuid('drugVariantUid')
+        .uuid('drugVariantId')
         .notNullable()
         .references('id')
         .inTable('drugVariants')
@@ -281,7 +282,7 @@ exports.up = async function up(knex) {
         .primary();
 
       table
-        .uuid('userUid')
+        .uuid('userId')
         .notNullable()
         .references('id')
         .inTable('users');
@@ -338,7 +339,7 @@ exports.up = async function up(knex) {
         .primary();
 
       table
-        .uuid('userUid')
+        .uuid('userId')
         .notNullable()
         .references('id')
         .inTable('users');
@@ -395,7 +396,7 @@ exports.up = async function up(knex) {
         .primary();
 
       table
-        .uuid('actorUid')
+        .uuid('actorId')
         .notNullable()
         .references('id')
         .inTable('users');
@@ -420,22 +421,19 @@ exports.up = async function up(knex) {
         .notNullable();
 
       table
-        .uuid('targetUid')
+        .uuid('targetId')
         .notNullable()
         .references('id')
         .inTable('users');
 
       table
-        .integer('duration')
-        .nullable();
+        .integer('duration');
 
       table
-        .text('pubReason')
-        .nullable();
+        .text('pubReason');
 
       table
-        .text('privReason')
-        .nullable();
+        .text('privReason');
 
       table
         .timestamp('closedAt');
@@ -453,7 +451,7 @@ exports.up = async function up(knex) {
         .primary();
 
       table
-        .uuid('userUid')
+        .uuid('userId')
         .notNullable()
         .references('id')
         .inTable('users');
@@ -483,7 +481,7 @@ exports.up = async function up(knex) {
         .notNullable();
 
       table
-        .uuid('drugUid')
+        .uuid('drugId')
         .notNullable()
         .references('id')
         .inTable('drugs');
@@ -512,16 +510,12 @@ exports.up = async function up(knex) {
         .timestamp('doseDate')
         .notNullable();
     })
-    .createTable('guilds', table => {
+    .createTable('discordGuilds', table => {
       table
-        .uuid('id')
+        .text('id')
         .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .unique()
         .primary();
-
-      table
-        .text('discordId')
-        .unique();
 
       table
         .timestamp('joinedAt')
@@ -547,10 +541,10 @@ exports.up = async function up(knex) {
         .primary();
 
       table
-        .uuid('guildUid')
+        .text('guildId')
         .notNullable()
         .references('id')
-        .inTable('guilds');
+        .inTable('discordGuilds');
 
       table
         .text('name')
@@ -584,14 +578,14 @@ exports.down = async function down(knex) {
     .dropTableIfExists('drugVariants')
     .dropTableIfExists('drugArticles')
     .dropTableIfExists('drugNames')
+    .dropTableIfExists('userModHistory')
+    .dropTableIfExists('userDrugHistory')
     .dropTableIfExists('drugs')
     .dropTableIfExists('userExperience')
     .dropTableIfExists('userTickets')
-    .dropTableIfExists('userModHistory')
-    .dropTableIfExists('userDrugHistory')
     .dropTableIfExists('users')
     .dropTableIfExists('reactionRoles')
-    .dropTableIfExists('guilds');
+    .dropTableIfExists('discordGuilds');
 
   await knex.raw('DROP TYPE IF EXISTS "drug_unit"');
   await knex.raw('DROP TYPE IF EXISTS "command_type"');
