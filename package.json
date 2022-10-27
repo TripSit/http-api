@@ -9,9 +9,11 @@
     "test": "npm run lint && npm run jest",
     "lint": "eslint .",
     "jest": "NODE_ENV=test jest -i",
+    "redeploy": "npm run rollback && npm run migrate && npm run seed && npm run types",
     "rollback": "knex migrate:rollback",
     "migrate": "knex migrate:latest",
-    "migrate:seed": "knex seed:run"
+    "seed": "knex seed:run",
+    "types": "node ./typeOutput/types"
   },
   "author": "SevenCats",
   "contributors": [
@@ -34,6 +36,7 @@
     "joi": "^17.6.2",
     "knex": "^2.3.0",
     "knex-stringcase": "^1.4.6",
+    "knex-types": "^0.4.0",
     "luxon": "^3.0.4",
     "pg": "^8.8.0",
     "winston": "^3.8.2"
