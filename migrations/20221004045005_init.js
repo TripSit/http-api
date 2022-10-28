@@ -349,7 +349,6 @@ exports.up = async function up(knex) {
 
       table
         .enum('type', [
-          'TOTAL',
           'GENERAL',
           'TRIPSITTER',
           'DEVELOPER',
@@ -359,6 +358,8 @@ exports.up = async function up(knex) {
           useNative: true,
           enumName: 'experience_type',
         });
+
+      table.unique(['userId', 'type']);
 
       table
         .integer('level')
@@ -380,11 +381,6 @@ exports.up = async function up(knex) {
 
       table
         .text('lastMessageChannel');
-
-      table
-        .boolean('mee6Converted')
-        .notNullable()
-        .defaultTo(false);
 
       table
         .timestamp('createdAt')

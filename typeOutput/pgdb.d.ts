@@ -51,7 +51,6 @@ export enum DrugUnit {
 }
 
 export enum ExperienceType {
-  Total = "TOTAL",
   General = "GENERAL",
   Tripsitter = "TRIPSITTER",
   Developer = "DEVELOPER",
@@ -205,7 +204,6 @@ export type UserExperience = {
   total_points: number;
   last_message_at: Date | null;
   last_message_channel: string | null;
-  mee6_converted: boolean;
   created_at: Date;
 };
 
