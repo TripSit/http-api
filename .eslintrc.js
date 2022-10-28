@@ -43,5 +43,13 @@ module.exports = {
         'import/prefer-default-export': 0,
       },
     },
+    {
+      files: [
+        './type-output/types.ts',
+      ],
+      rules: {
+        'import/no-extraneous-dependencies': [2, { devDependencies: true }],
+      },
+    },
   ],
 };
