@@ -22,6 +22,15 @@ export enum DrugRoa {
   Transdermal = "TRANSDERMAL",
 }
 
+export enum DrugUnit {
+  Mg = "MG",
+  Ml = "ML",
+  G = "µG",
+  G = "G",
+  Oz = "OZ",
+  Floz = "FLOZ",
+}
+
 export enum ExperienceType {
   Total = "TOTAL",
   General = "GENERAL",
@@ -36,6 +45,7 @@ export enum TicketStatus {
   Closed = "CLOSED",
   Blocked = "BLOCKED",
   Paused = "PAUSED",
+  Resolved = "RESOLVED",
 }
 
 export enum TicketType {
@@ -191,7 +201,8 @@ export type UserDrugDoses = {
   user_id: string;
   drug_id: string;
   route: DrugRoa | null;
-  dose_mg: number;
+  dose: number;
+  units: DrugUnit;
   created_at: Date;
 };
 
@@ -204,7 +215,6 @@ export type UserExperience = {
   total_points: number;
   last_message_at: Date | null;
   last_message_channel: string | null;
-  mee6_converted: boolean;
   created_at: Date;
 };
 
