@@ -52,9 +52,14 @@ export enum UserActionType {
   TicketBan = "TICKET_BAN",
   DiscordBotBan = "DISCORD_BOT_BAN",
   BanEvasion = "BAN_EVASION",
+  Underban = "UNDERBAN",
+  Timeout = "TIMEOUT",
+  Report = "REPORT",
+  Kick = "KICK",
 }
 
 export enum Table {
+  DiscordGuilds = "discord_guilds",
   DrugArticles = "drug_articles",
   DrugNames = "drug_names",
   DrugVariantRoas = "drug_variant_roas",
@@ -62,11 +67,21 @@ export enum Table {
   Drugs = "drugs",
   KnexMigrations = "knex_migrations",
   KnexMigrationsLock = "knex_migrations_lock",
+  ReactionRoles = "reaction_roles",
   UserActions = "user_actions",
+  UserDrugDoses = "user_drug_doses",
   UserExperience = "user_experience",
   UserTickets = "user_tickets",
   Users = "users",
 }
+
+export type DiscordGuilds = {
+  id: string;
+  is_banned: boolean;
+  last_drama_at: Date | null;
+  drama_reason: string | null;
+  joined_at: Date;
+};
 
 export type DrugArticles = {
   id: string;
@@ -146,15 +161,37 @@ export type KnexMigrationsLock = {
   is_locked: number | null;
 };
 
+export type ReactionRoles = {
+  id: string;
+  guild_id: string;
+  channel_id: string;
+  message_id: string;
+  reaction_id: string;
+  role_id: string;
+  name: string;
+  created_at: Date;
+};
+
 export type UserActions = {
   id: string;
   user_id: string;
   type: UserActionType | null;
   ban_evasion_related_user: string | null;
   description: string;
+  internal_note: string | null;
   expires_at: Date | null;
   repealed_by: string | null;
+  repealed_at: Date | null;
   created_by: string;
+  created_at: Date;
+};
+
+export type UserDrugDoses = {
+  id: string;
+  user_id: string;
+  drug_id: string;
+  route: DrugRoa | null;
+  dose_mg: number;
   created_at: Date;
 };
 
@@ -164,6 +201,7 @@ export type UserExperience = {
   type: ExperienceType | null;
   level: number;
   level_points: number;
+  total_points: number;
   last_message_at: Date | null;
   last_message_channel: string | null;
   mee6_converted: boolean;
@@ -175,9 +213,10 @@ export type UserTickets = {
   user_id: string;
   description: string;
   thread_id: string;
-  type: TicketType | null;
+  type: TicketType;
   status: TicketStatus;
   first_message_id: string;
+  closed_by: string | null;
   closed_at: Date | null;
   created_at: Date;
 };
@@ -185,9 +224,11 @@ export type UserTickets = {
 export type Users = {
   id: string;
   email: string | null;
-  nick: string | null;
+  username: string | null;
   password_hash: string | null;
   discord_id: string | null;
+  irc_id: string | null;
+  matrix_id: string | null;
   timezone: string | null;
   birthday: Date | null;
   karma_given: number;

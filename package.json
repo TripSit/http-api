@@ -11,9 +11,11 @@
     "lint": "eslint --ext .ts,.js .",
     "jest": "NODE_ENV=test jest -i",
     "migrate": "knex migrate:latest",
-    "migrate:seed": "knex seed:run",
+    "migrate:make": "knex migrate:make -x ts --",
+    "seed": "knex seed:run",
+    "seed:make": "knex seed:make -x ts --",
     "generate-app-tokens": "ts-node ./generate-app-tokens.ts",
-    "reset-db": "knex migrate:rollback --all && knex migrate:latest && npm run seed:run && npm run dbtypes",
+    "reset-db": "knex migrate:rollback --all && knex migrate:latest && npm run seed && npm run db-types",
     "db-types": "ts-node ./type-output/types.ts"
   },
   "authors": [
