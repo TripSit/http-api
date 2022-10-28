@@ -178,6 +178,7 @@ export async function up(knex: Knex) {
           'CLOSED',
           'BLOCKED',
           'PAUSED',
+          'RESOLVED',
         ], {
           useNative: true,
           enumName: 'ticket_status',
@@ -246,6 +247,8 @@ export async function up(knex: Knex) {
           enumName: 'experience_type',
         });
 
+      table.unique(['userId', 'type']);
+
       table
         .integer('level')
         .unsigned()
@@ -268,11 +271,6 @@ export async function up(knex: Knex) {
       table.text('lastMessageChannel');
 
       table
-        .boolean('mee6Converted')
-        .notNullable()
-        .defaultTo(false);
-
-      table
         .timestamp('createdAt')
         .notNullable()
         .defaultTo(knex.fn.now());
@@ -286,7 +284,9 @@ export async function up(knex: Knex) {
 
       table
         .text('guildId')
-        .notNullable();
+        .notNullable()
+        .references('id')
+        .inTable('discordGuilds');
 
       table
         .text('channelId')
@@ -529,8 +529,22 @@ export async function up(knex: Knex) {
       });
 
       table
-        .float('doseMg')
+        .float('dose')
         .unsigned()
+        .notNullable();
+
+      table
+        .enum('units', [
+          'MG',
+          'ML',
+          'µG',
+          'G',
+          'OZ',
+          'FLOZ',
+        ], {
+          useNative: true,
+          enumName: 'drug_unit',
+        })
         .notNullable();
 
       table
