@@ -81,6 +81,10 @@ export async function up(knex: Knex) {
           'TICKET_BAN', // Do we really need this much granularity?
           'DISCORD_BOT_BAN',
           'BAN_EVASION',
+          'UNDERBAN',
+          'TIMEOUT',
+          'REPORT',
+          'KICK',
         ], {
           useNative: true,
           enumName: 'user_action_type',
@@ -95,12 +99,15 @@ export async function up(knex: Knex) {
         .text('description')
         .notNullable();
 
+      table.text('internalNote');
       table.timestamp('expiresAt');
 
       table
         .uuid('repealedBy')
         .references('id')
         .inTable('users');
+
+      table.timestamp('repealedAt');
 
       table
         .uuid('createdBy')
