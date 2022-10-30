@@ -22,8 +22,8 @@ export const typeDefs = gql`
 
   type User {
     id: ID!
-    nick: String
     email: EmailAddress
+    username: String
     discordId: String
     ircId: String
     matrixId: String
