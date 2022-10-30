@@ -107,7 +107,8 @@ export async function up(knex: Knex) {
         ], {
           useNative: true,
           enumName: 'user_action_type',
-        });
+        })
+        .notNullable();
 
       table
         .uuid('banEvasionRelatedUser')
