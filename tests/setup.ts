@@ -13,5 +13,5 @@ async function createTestDatabase() {
 }
 
 export default async function setupJest() {
-  await createTestDatabase();
+  // await createTestDatabase();
 }
