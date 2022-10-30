@@ -36,11 +36,11 @@ export default function createGraphQlSchema() {
         ...resolvers,
         Query: {
           ...acc.Query,
-          ...resolvers.Query,
+          ...(resolvers as { Query: {} }).Query,
         },
         Mutation: {
           ...acc.Mutation,
-          ...resolvers.Mutation,
+          ...(resolvers as { Mutation: {} }).Mutation,
         },
       }), {
         Query: {},
