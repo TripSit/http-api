@@ -4,7 +4,7 @@ import createKnex, { Knex } from 'knex';
 import knexConfig from '../../../../knexfile';
 import createDb from '../../../db';
 import createSchema from '../..';
-import { uuidPattern } from '../../../../tests/utils/patterns';
+import { uuidPattern } from '../../../../tests/patterns';
 import { POSTGRES_USER, POSTGRES_DB } from '../../../../env';
 
 let server: ApolloServer;
@@ -22,14 +22,6 @@ beforeAll(async () => {
       database: `${POSTGRES_DB}_test`,
     },
   });
-
-  try {
-    await knex.migrate.rollback(undefined, true);
-    await knex.migrate.latest();
-    await knex.seed.run();
-  } finally {
-    await knex.destroy();
-  }
 });
 
 afterAll(async () => knex.destroy());
@@ -37,7 +29,7 @@ afterAll(async () => knex.destroy());
 describe('Mutation', () => {
   describe('createUser', () => {
     test('Can create user with username', async () => {
-      const result = await server.executeOperation({
+      const { body } = await server.executeOperation({
         query: gql`
           mutation CreateUser($username: String!, $password: String!) {
             createUser(username: $username, password: $password) {
@@ -61,10 +53,13 @@ describe('Mutation', () => {
           knex,
           db: createDb(knex),
         },
-      })
-        .then((res) => res.body);
+      });
 
-      expect(result).toEqual({
+      console.log(body);
+      expect(body.kind).toBe('single');
+      expect(body).toBeUndefined();
+
+      expect(body).toEqual({
         createUser: {
           id: expect.stringMatching(uuidPattern),
           email: null,
