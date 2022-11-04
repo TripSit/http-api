@@ -1,11 +1,10 @@
 import { ApolloServer } from '@apollo/server';
 import gql from 'graphql-tag';
-import createKnex, { Knex } from 'knex';
-import knexConfig from '../../../../knexfile';
+import { Knex } from 'knex';
 import createDb from '../../../db';
 import createSchema from '../..';
+import createTestKnex from '../../../../tests/test-knex';
 import { uuidPattern } from '../../../../tests/patterns';
-import { POSTGRES_USER, POSTGRES_DB } from '../../../../env';
 
 let server: ApolloServer;
 let knex: Knex;
@@ -14,19 +13,15 @@ beforeAll(async () => {
     schema: createSchema(),
   });
 
-  knex = createKnex({
-    ...knexConfig,
-    connection: {
-      ...knexConfig.connection,
-      user: `${POSTGRES_USER}_test`,
-      database: `${POSTGRES_DB}_test`,
-    },
-  });
+  knex = createTestKnex();
 });
 
-afterAll(async () => knex.destroy());
+afterAll(async () => {
+  await knex('users').del();
+  await knex.destroy();
+});
 
-describe.skip('Mutation', () => {
+describe('Mutation', () => {
   describe('createUser', () => {
     test('Can create user with username', async () => {
       const { body } = await server.executeOperation({
@@ -72,8 +67,4 @@ describe.skip('Mutation', () => {
       });
     });
   });
-});
-
-test('Dummy test', () => {
-  expect(true).toBe(true);
 });
