@@ -23,7 +23,7 @@ export default function createContext(
 
     return {
       ...deps,
-      appId,,
+      appId,
     };
   };
 }
