@@ -25,8 +25,6 @@ export const typeDefs = gql`
 `;
 
 export const resolvers = {
-  Query: {},
-
   Mutation: {
     async createDrugName(
       _: unknown,
