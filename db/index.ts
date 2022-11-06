@@ -1,11 +1,9 @@
-import createKnex from 'knex';
+import createKnex, { Knex } from 'knex';
 import knexConfig from '../knexfile';
 import createUserDb from './user';
 import createDrugDb from './drug';
 
-export default function createDb() {
-  const knex = createKnex(knexConfig);
-
+export default function createDb(knex: Knex = createKnex(knexConfig)) {
   return {
     knex,
     user: createUserDb(knex),

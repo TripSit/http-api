@@ -8,9 +8,9 @@ export interface Context extends BaseContext, Omit<ServerDeps, 'config'> {
   appId: string | null;
 }
 
-export default function createContext(
-  { config, ...deps }: ServerDeps,
-): ContextFunction<[{ req: IncomingMessage }], Context> {
+export type ContextFn = ContextFunction<[{ req: IncomingMessage }], Context>;
+
+export default function createContext({ config, ...deps }: ServerDeps): ContextFn {
   return async ({ req }) => {
     let appId = null;
     if (req.headers.authorization) {
