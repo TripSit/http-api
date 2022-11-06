@@ -1,16 +1,15 @@
 import assert from 'node:assert';
-import { ApolloServer } from '@apollo/server';
+import type { ApolloServer } from '@apollo/server';
 import gql from 'graphql-tag';
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 import argon from 'argon2';
 import createTestKnex from '../../../../tests/test-knex';
 import createTestServer, { createTestContext } from '../../../../tests/test-server';
 import { uuidPattern } from '../../../../tests/patterns';
-// import { uuidPattern } from '../../../../tests/patterns';
 
 let server: ApolloServer;
 let knex: Knex;
-beforeAll(async () => {
+beforeAll(() => {
   knex = createTestKnex();
   server = createTestServer();
 });

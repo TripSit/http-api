@@ -7,10 +7,11 @@ export const typeDefs = gql`
     createUserAction(
       userId: UUID!,
       type: UserActionType!,
-      banEvasionRelatedUser: UUID!
+      banEvasionRelatedUser: UUID,
       description: String!,
       internalNote: String,
-      createdBy: UUID!
+      expiresAt: DateTime,
+      createdBy: UUID!,
     ): UserAction!
 
     updateUserAction(
@@ -154,6 +155,10 @@ export const resolvers = {
 
     async repealedBy(action: UserActionRecord, _: unknown, { db }: Context) {
       return action.repealedBy && db.user.getById(action.repealedBy);
+    },
+
+    async createdBy(action: UserActionRecord, _: unknown, { db }: Context) {
+      return db.user.getById(action.createdBy);
     },
   },
 };
