@@ -127,24 +127,6 @@ describe('Mutation', () => {
               createdBy: $createdBy,
             ) {
               id
-              user {
-                id
-              }
-              type
-              banEvasionRelatedUser {
-                id
-              }
-              description
-              internalNote
-              expiresAt
-              repealedBy {
-                id
-              }
-              repealedAt
-              createdBy {
-                id
-              }
-              createdAt
             }
           }
         `,
@@ -159,6 +141,55 @@ describe('Mutation', () => {
       expect(body.singleResult.errors).toHaveLength(1);
       expect(body.singleResult.errors?.[0]?.message)
         .toBe('Cannot set related ban evasion user if type is not BAN_EVASION');
+    });
+
+    test('Creates action when BAN_EVASION and banEvasionRelatedUser is set', async () => {
+      const { body } = await server.executeOperation({
+        query: gql`
+          mutation CreateUserAction(
+            $userId: UUID!,
+            $type: UserActionType!,
+            $banEvasionRelatedUser: UUID!,
+            $description: String!,
+            $internalNote: String!,
+            $expiresAt: DateTime!,
+            $createdBy: UUID!,
+          ) {
+            createUserAction(
+              userId: $userId,
+              type: $type,
+              banEvasionRelatedUser: $banEvasionRelatedUser,
+              description: $description,
+              internalNote: $internalNote,
+              expiresAt: $expiresAt,
+              createdBy: $createdBy,
+            ) {
+              id
+              banEvasionRelatedUser {
+                id
+                username
+              }
+            }
+          }
+        `,
+        variables: {
+          ...defaultVariables(),
+          banEvasionRelatedUser,
+          type: 'BAN_EVASION',
+        },
+      });
+
+      assert(body.kind === 'single');
+      expect(body.singleResult.errors).toBeUndefined();
+      expect(body.singleResult.data).toEqual({
+        createUserAction: {
+          id: expect.stringMatching(uuidPattern),
+          banEvasionRelatedUser: {
+            id: expect.stringMatching(uuidPattern),
+            username: 'AJAr',
+          },
+        },
+      });
     });
   });
 });

@@ -56,6 +56,7 @@ export const typeDefs = gql`
 
 interface BanEvasionCheckBaseParams {
   id?: string;
+  type?: UserActionType;
   banEvasionRelatedUser?: string;
 }
 
@@ -69,11 +70,11 @@ function withBanEvasionCheck<Params extends BanEvasionCheckBaseParams>(
   fn: ActionWrite<Params>,
 ): ActionWrite<Params> {
   return async (root, params, ctx) => {
-    const type = !params?.id ? null : await ctx.db.knex<UserActionRecord>('userActions')
+    const type = params?.type || (!params?.id ? null : await ctx.db.knex<UserActionRecord>('userActions')
       .select('type')
       .where('id', params?.id)
       .first()
-      .then((action) => action?.type);
+      .then((action) => action?.type));
 
     if (type !== 'BAN_EVASION' && params?.banEvasionRelatedUser) {
       throw new Error('Cannot set related ban evasion user if type is not BAN_EVASION');
