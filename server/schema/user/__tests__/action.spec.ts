@@ -4,23 +4,17 @@ import gql from 'graphql-tag';
 import type { Knex } from 'knex';
 import createTestKnex from '../../../../tests/test-knex';
 import createTestServer, { createTestContext } from '../../../../tests/test-server';
+import getTestUsers, { TestUsers } from '../../../../tests/test-users';
 import { uuidPattern } from '../../../../tests/patterns';
 
 let server: ApolloServer;
 let knex: Knex;
+let users: TestUsers;
 let userActionId: string;
-let userId: string;
-let createdBy: string;
-let banEvasionRelatedUser: string;
 beforeAll(async () => {
   knex = createTestKnex();
   server = createTestServer();
-  [userId, createdBy, banEvasionRelatedUser] = await Promise.all(['SevenCats', 'Moonbear', 'AJAr']
-    .map((username) => knex('users')
-      .where('username', username)
-      .select('id')
-      .first()))
-    .then((records) => records.map((record) => record.id));
+  users = await getTestUsers(knex);
 });
 
 afterAll(async () => knex.destroy());
@@ -29,12 +23,12 @@ describe('Mutation', () => {
   describe('createUserAction', () => {
     function defaultVariables() {
       return {
-        userId,
-        createdBy,
+        userId: users.moonBear.id,
         type: 'NOTE',
         description: 'Wrote some tests',
         internalNote: 'Tests involve too many cats',
         expiresAt: new Date('2030-02-02'),
+        createdBy: users.sevenCats.id,
       };
     }
 
@@ -99,7 +93,7 @@ describe('Mutation', () => {
           expiresAt: new Date('2030-02-02'),
           repealedBy: null,
           repealedAt: null,
-          createdBy: { id: expect.stringMatching(uuidPattern) },
+          createdBy: { id: users.sevenCats.id },
           createdAt: expect.any(Date),
         },
       });
@@ -134,7 +128,7 @@ describe('Mutation', () => {
         `,
         variables: {
           ...defaultVariables(),
-          banEvasionRelatedUser,
+          banEvasionRelatedUser: users.ajar.id,
         },
       }, {
         contextValue: await createTestContext(knex),
@@ -178,8 +172,8 @@ describe('Mutation', () => {
         `,
         variables: {
           ...defaultVariables(),
-          banEvasionRelatedUser,
           type: 'BAN_EVASION',
+          banEvasionRelatedUser: users.ajar.id,
         },
       }, {
         contextValue: await createTestContext(knex),
@@ -260,7 +254,7 @@ describe('Mutation', () => {
       `,
       variables: {
         id: userActionId,
-        repealedBy: banEvasionRelatedUser,
+        repealedBy: users.ajar.id,
       },
     }, {
       contextValue: await createTestContext(knex),
@@ -271,7 +265,7 @@ describe('Mutation', () => {
     expect(body.singleResult.data).toEqual({
       repealUserAction: {
         id: expect.stringMatching(uuidPattern),
-        repealedBy: { id: banEvasionRelatedUser },
+        repealedBy: { id: users.ajar.id },
         repealedAt: expect.any(Date),
       },
     });
@@ -315,9 +309,9 @@ describe('UserAction', () => {
   beforeAll(async () => {
     userActionId = await knex('userActions')
       .insert({
-        userId,
-        createdBy,
-        banEvasionRelatedUser,
+        userId: users.moonBear.id,
+        createdBy: users.sevenCats.id,
+        banEvasionRelatedUser: users.ajar.id,
         type: 'BAN_EVASION',
         description: 'fly guy again',
         internalNote: 'Indeed does fly',
@@ -348,7 +342,7 @@ describe('UserAction', () => {
     expect(body.singleResult.data).toEqual({
       userActions: [{
         id: userActionId,
-        banEvasionRelatedUser: { id: banEvasionRelatedUser },
+        banEvasionRelatedUser: { id: users.ajar.id },
       }],
     });
   });
@@ -366,7 +360,7 @@ describe('UserAction', () => {
       `,
       variables: {
         id: userActionId,
-        repealedBy: banEvasionRelatedUser,
+        repealedBy: users.ajar.id,
       },
     }, {
       contextValue: await createTestContext(knex),
@@ -376,7 +370,7 @@ describe('UserAction', () => {
     expect(body.singleResult.errors).toBeUndefined();
     expect(body.singleResult.data).toEqual({
       repealUserAction: {
-        repealedBy: { id: banEvasionRelatedUser },
+        repealedBy: { id: users.ajar.id },
       },
     });
   });
@@ -401,7 +395,7 @@ describe('UserAction', () => {
     expect(body.singleResult.errors).toBeUndefined();
     expect(body.singleResult.data).toEqual({
       userActions: [{
-        createdBy: { id: createdBy },
+        createdBy: { id: users.sevenCats.id },
       }],
     });
   });

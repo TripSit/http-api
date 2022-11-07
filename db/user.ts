@@ -3,9 +3,11 @@ import type { Knex } from 'knex';
 export interface UserRecord {
   id: string;
   email?: string;
-  nick?: string;
+  username?: string;
   passwordHash?: string;
   discordId?: string;
+  ircId?: string;
+  matrixId?: string;
   timezone: string;
   birthday: Date;
   karmaGiven: number;
