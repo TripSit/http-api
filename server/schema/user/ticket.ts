@@ -4,14 +4,16 @@ import type { UserTicketRecord, UserTicketStatus, UserTicketType } from '../../.
 
 export const typeDefs = gql`
   extend type Mutation {
-    createUserTicket(userId: UUID!, type: UserTicketType!, description: String): UserTicket!
-
-    updateUserTicket(
-      userTicketId: UUID!,
-      type: UserTicketType,
-      status: UserTicketStatus,
+    createUserTicket(
+      userId: UUID!,
+      type: UserTicketType!,
       description: String,
+      threadId: String!,
+      firstMessageId: String!,
     ): UserTicket!
+
+    updateUserTicket(id: UUID!, description: String): UserTicket!
+    # updateUserTicketStatus(id: UUID!, status: UserTicketStatus!): UserTicket!
   }
 
   type UserTicket {
@@ -19,8 +21,8 @@ export const typeDefs = gql`
     type: UserTicketType!
     status: UserTicketStatus!
     description: String!
-    threadId: String!
-    firstMessageId: String!
+    threadId: String
+    firstMessageId: String
     closedAt: DateTime
     createdAt: DateTime!
   }
@@ -55,8 +57,8 @@ export const resolvers = {
 
     async updateUserTicket(
       _: unknown,
-      { userTicketId, ...updates }: {
-        userTicketId: string;
+      { id, ...updates }: {
+        id: string;
         type?: UserTicketType;
         status?: UserTicketStatus;
         description?: string;
@@ -64,14 +66,33 @@ export const resolvers = {
       { db }: Context,
     ) {
       return db.knex.transaction(async (trx) => {
-        await trx('userTickets')
-          .where('id', userTicketId)
-          .update(updates);
-
-        return trx<UserTicketRecord>('userTickets')
-          .where('id', userTicketId)
-          .first();
+        await trx('userTickets').where('id', id).update(updates);
+        return trx<UserTicketRecord>('userTickets').where('id', id).first();
       });
     },
+
+    // async updateUserTicketStatus(
+    //   _: unknown,
+    //   { id, status }: {
+    //     id: string;
+    //     status: UserTicketStatus;
+    //   },
+    //   { db }: Context,
+    // ) {
+    //   const currentStatus = await db.knex<UserTicketRecord>('userTickets')
+    //     .where('id', id)
+    //     .select('status')
+    //     .first()
+    //     .then((ticket) => ticket?.status);
+
+    //   if (!currentStatus) throw new Error('Ticket not found');
+    //   if (currentStatus === 'CLOSED') {
+    //     throw new Error('Tickets may not change their status from CLOSED');
+    //   }
+
+    //   return db.knex.transaction(async (trx) => {
+    //     const currentType = trx('user');
+    //   });
+    // },
   },
 };
