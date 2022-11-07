@@ -3,6 +3,10 @@ import type { Context } from '../../context';
 import type { UserActionRecord, UserActionType } from '../../../db/user';
 
 export const typeDefs = gql`
+  extend type Query {
+    userActions(id: UUID): [UserAction!]!
+  }
+
   extend type Mutation {
     createUserAction(
       userId: UUID!,
@@ -16,7 +20,6 @@ export const typeDefs = gql`
 
     updateUserAction(
       id: UUID!,
-      banEvasionRelatedUser: UUID
       description: String,
       internalNote: String,
       expiresAt: DateTime,
@@ -28,7 +31,6 @@ export const typeDefs = gql`
 
   type UserAction {
     id: ID!
-    user: User!
     type: UserActionType!
     banEvasionRelatedUser: User
     description: String!
@@ -85,6 +87,16 @@ function withBanEvasionCheck<Params extends BanEvasionCheckBaseParams>(
 }
 
 export const resolvers = {
+  Query: {
+    async userActions(_: unknown, params: { id?: string }, { db }: Context) {
+      const sql = db.knex('userActions')
+        .orderBy('createdAt');
+
+      if (params.id) sql.where('id', params.id);
+      return sql;
+    },
+  },
+
   Mutation: {
     createUserAction: withBanEvasionCheck<{
       userId: string;
@@ -146,10 +158,6 @@ export const resolvers = {
   },
 
   UserAction: {
-    async user(action: UserActionRecord, _: unknown, { db }: Context) {
-      return db.user.getById(action.userId);
-    },
-
     async banEvasionRelatedUser(action: UserActionRecord, _: unknown, { db }: Context) {
       return action.banEvasionRelatedUser && db.user.getById(action.banEvasionRelatedUser);
     },
