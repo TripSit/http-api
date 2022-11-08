@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 import type { Knex } from 'knex';
 import createTestKnex from '../../../../tests/test-knex';
 import createTestServer, { createTestContext } from '../../../../tests/test-server';
-// import { uuidPattern } from '../../../../tests/patterns';
+import { uuidPattern } from '../../../../tests/patterns';
 import type { DrugNameRecord } from '../../../../db/drug';
 
 let server: ApolloServer;
@@ -111,6 +111,104 @@ describe('Query', () => {
       expect(pageTwo.singleResult.errors).toBeUndefined();
       expect(pageTwo.singleResult.data?.drugs).toHaveLength(4);
       expect((pageTwo.singleResult.data?.drugs as DrugData[]).at(1)?.id).toBe(lastId);
+    });
+  });
+});
+
+describe('Drug', () => {
+  test('name', async () => {
+    const { body } = await server.executeOperation({
+      query: gql`
+        query DrugName($id: UUID!) {
+          drugs(id: $id) {
+            name
+          }
+        }
+      `,
+      variables: { id: lsdId },
+    }, {
+      contextValue: await createTestContext(knex),
+    });
+
+    assert(body.kind === 'single');
+    expect(body.singleResult.errors).toBeUndefined();
+    expect(body.singleResult.data).toEqual({
+      drugs: [{ name: 'LSD' }],
+    });
+  });
+
+  test('aliases', async () => {
+    const { body } = await server.executeOperation({
+      query: gql`
+        query DrugAliases($id: UUID!) {
+          drugs(id: $id) {
+            aliases {
+              id
+              name
+              type
+            }
+          }
+        }
+      `,
+      variables: { id: lsdId },
+    }, {
+      contextValue: await createTestContext(knex),
+    });
+
+    assert(body.kind === 'single');
+    expect(body.singleResult.errors).toBeUndefined();
+    expect(body.singleResult.data).toEqual({
+      drugs: [{
+        aliases: [
+          {
+            id: expect.stringMatching(uuidPattern),
+            name: 'acid',
+            type: 'COMMON',
+          },
+          {
+            id: expect.stringMatching(uuidPattern),
+            name: 'cid',
+            type: 'COMMON',
+          },
+          {
+            id: expect.stringMatching(uuidPattern),
+            name: 'lsd-25',
+            type: 'COMMON',
+          },
+          {
+            id: expect.stringMatching(uuidPattern),
+            name: 'lucy',
+            type: 'COMMON',
+          },
+        ],
+      }],
+    });
+  });
+
+  test('lastUpdatedBy', async () => {
+    const { body } = await server.executeOperation({
+      query: gql`
+        query DrugLastUpdatedBy($id: UUID!) {
+          drugs(id: $id) {
+            lastUpdatedBy {
+              username
+            }
+          }
+        }
+      `,
+      variables: { id: lsdId },
+    }, {
+      contextValue: await createTestContext(knex),
+    });
+
+    assert(body.kind === 'single');
+    expect(body.singleResult.errors).toBeUndefined();
+    expect(body.singleResult.data).toEqual({
+      drugs: [{
+        lastUpdatedBy: {
+          username: 'MoonBear',
+        },
+      }],
     });
   });
 });
