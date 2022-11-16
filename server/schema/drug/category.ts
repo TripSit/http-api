@@ -3,6 +3,10 @@ import type { Context } from '../../context';
 import type { DrugCategoryRecord, DrugCategoryType } from '../../../db/drug';
 
 export const typeDefs = gql`
+  extend type Query {
+    drugCategories(id: UUID, name: String, type: DrugCategoryType): [DrugCategory!]!
+  }
+
   extend type Mutation {
     createDrugCategory(name: String!, type: DrugCategoryType!): DrugCategory!
     deleteDrugCategory(id: UUID!): Void
@@ -31,6 +35,24 @@ interface AssociateParams {
 }
 
 export const resolvers = {
+  Query: {
+    async drugCategories(
+      _: unknown,
+      params: {
+        id?: string;
+        name?: string;
+        type?: DrugCategoryType;
+      },
+      { db }: Context,
+    ) {
+      const sql = db.knex<DrugCategoryRecord>('drugCategories').orderBy('name');
+      if (params.id) sql.where('id', params.id);
+      if (params.name) sql.whereRaw('LOWER(name) LIKE ?', [`%${params.name.toLowerCase()}%`]);
+      if (params.type) sql.where('type', params.type);
+      return sql;
+    },
+  },
+
   Mutation: {
     async createDrugCategory(
       _: unknown,
@@ -40,7 +62,7 @@ export const resolvers = {
       },
       { db }: Context,
     ) {
-      return db.knex('drugCategories')
+      return db.knex<DrugCategoryRecord>('drugCategories')
         .insert(params)
         .returning('*')
         .then(([record]) => record);
@@ -53,15 +75,9 @@ export const resolvers = {
     },
 
     async associateDrugWithCategory(_: unknown, params: AssociateParams, { db }: Context) {
-      const exists = await db.knex('drugCategoryDrugs')
-        .where(params)
-        .first()
-        .then(Boolean);
-      if (exists) throw new Error('Association already exists');
-
       return db.knex.transaction(async (trx) => {
         await trx('drugCategoryDrugs').insert(params);
-        return trx('drugs')
+        return trx<DrugCategoryRecord>('drugs')
           .where('id', params.drugId)
           .first();
       });
@@ -73,7 +89,7 @@ export const resolvers = {
           .where(params)
           .del();
 
-        return trx('drugs')
+        return trx<DrugCategoryRecord>('drugs')
           .where('id', params.drugId)
           .first();
       });
