@@ -379,6 +379,7 @@ describe('DrugCategory', () => {
     });
 
     assert(body.kind === 'single');
+    expect(body.singleResult.errors).toBeUndefined();
     expect(body.singleResult.data).toEqual({
       drugCategories: [{
         drugs: [{
