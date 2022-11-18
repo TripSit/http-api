@@ -6,7 +6,7 @@ import createTestKnex from '../../../../tests/test-knex';
 import createTestServer, { createTestContext } from '../../../../tests/test-server';
 import createDiscordApi, { DiscordApi } from '../../../../discord-api';
 import { uuidPattern } from '../../../../tests/patterns';
-import type { DrugNameRecord } from '../../../../db/drug';
+import { DrugCategoryRecord, DrugNameRecord } from '../../../../db/drug';
 
 let server: ApolloServer;
 let knex: Knex;
@@ -184,6 +184,60 @@ describe('Drug', () => {
             type: 'COMMON',
           },
         ],
+      }],
+    });
+  });
+
+  test('categories', async () => {
+    await knex('drugCategories')
+      .where('name', 'Psychedelic')
+      .del();
+
+    const categoryId = await knex<DrugCategoryRecord>('drugCategories')
+      .insert({
+        name: 'Psychedelic',
+        type: 'PSYCHOACTIVE',
+      })
+      .returning('id')
+      .then(([record]) => record.id);
+
+    await knex('drugCategoryDrugs').insert({
+      drugId: lsdId,
+      drugCategoryId: categoryId,
+    });
+
+    const { body } = await server.executeOperation({
+      query: gql`
+        query DrugCategories($id: UUID!) {
+          drugs(id: $id) {
+            id
+            categories {
+              id
+              name
+              type
+              createdAt
+            }
+          }
+        }
+      `,
+      variables: {
+        id: lsdId,
+      },
+    }, {
+      contextValue: await createTestContext(knex, discordApi),
+    });
+
+    assert(body.kind === 'single');
+    expect(body.singleResult.errors).toBeUndefined();
+    expect(body.singleResult.data).toEqual({
+      drugs: [{
+        id: lsdId,
+        categories: [{
+          id: categoryId,
+          name: 'Psychedelic',
+          type: 'PSYCHOACTIVE',
+          createdAt: expect.any(Date),
+        }],
       }],
     });
   });
