@@ -19,14 +19,25 @@ export async function up(knex: Knex): Promise<void> {
       .notNullable();
 
     table
-      .boolean('hardcore')
+      .enum('type', [
+        'NORMAL',
+        'HARDCORE',
+        'TOKEN',
+      ], {
+        useNative: true,
+        enumName: 'counting_type',
+      })
       .notNullable()
-      .defaultTo(false);
+      .defaultTo('NORMAL');
 
     table
       .integer('currentNumber')
       .notNullable()
       .defaultTo(0);
+
+    table
+      .text('currentStakeholders')
+      .nullable();
 
     table
       .text('currentNumberMessageID')
