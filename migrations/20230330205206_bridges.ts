@@ -1,11 +1,29 @@
 import { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
-  // REMEMBER TO ADD A CHANGE TO USERS TO ADD LASTFM FOR ANTEAC
   await knex.schema.alterTable('users', table => {
     table
       .text('lastfmUsername')
       .nullable();
+    table
+      .boolean('partner')
+      .nullable()
+      .defaultTo('FALSE');
+    table
+      .boolean('supporter')
+      .nullable()
+      .defaultTo('FALSE');
+  });
+
+  await knex.schema.alterTable('discordGuilds', table => {
+    table
+      .boolean('partner')
+      .notNullable()
+      .defaultTo('FALSE');
+    table
+      .boolean('supporter')
+      .notNullable()
+      .defaultTo('FALSE');
   });
 
   await knex.schema.createTable('bridges', table => {
@@ -55,6 +73,30 @@ export async function down(knex: Knex): Promise<void> {
   if (await knex.schema.hasColumn('users', 'lastfm_username') === true) {
     await knex.schema.alterTable('users', table => {
       table.dropColumn('lastfm_username');
+    });
+  }
+
+  if (await knex.schema.hasColumn('users', 'supporter') === true) {
+    await knex.schema.alterTable('users', table => {
+      table.dropColumn('supporter');
+    });
+  }
+
+  if (await knex.schema.hasColumn('users', 'partner') === true) {
+    await knex.schema.alterTable('users', table => {
+      table.dropColumn('partner');
+    });
+  }
+
+  if (await knex.schema.hasColumn('guilds', 'partner') === true) {
+    await knex.schema.alterTable('guilds', table => {
+      table.dropColumn('partner');
+    });
+  }
+
+  if (await knex.schema.hasColumn('guilds', 'supporter') === true) {
+    await knex.schema.alterTable('guilds', table => {
+      table.dropColumn('supporter');
     });
   }
 

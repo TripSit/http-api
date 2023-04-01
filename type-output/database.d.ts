@@ -172,6 +172,8 @@ export type DiscordGuilds = {
   removed_at: Date | null;
   joined_at: Date;
   created_at: Date;
+  partner: boolean;
+  supporter: boolean;
 };
 
 export type DrugArticles = {
@@ -405,4 +407,6 @@ export type Users = {
   helper_role_ban: boolean;
   contributor_role_ban: boolean;
   lastfm_username: string | null;
+  partner: boolean | null;
+  supporter: boolean | null;
 };
