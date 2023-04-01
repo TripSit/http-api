@@ -38,11 +38,8 @@ export async function up(knex: Knex): Promise<void> {
       .notNullable();
 
     table
-      .text('internal_webhook')
-      .notNullable();
-
-    table
       .enum('status', [
+        'PENDING',
         'ACTIVE',
         'PAUSED',
       ], {
@@ -50,22 +47,13 @@ export async function up(knex: Knex): Promise<void> {
         enumName: 'bridge_status',
       })
       .notNullable()
-      .defaultTo('ACTIVE');
-
-    table
-      .text('external_guild')
-      .notNullable();
+      .defaultTo('PENDING');
 
     table
       .text('external_channel')
       .notNullable();
 
-    table
-      .text('external_webhook')
-      .nullable();
-
-    // We can only bridge the channel with a single channel on an external guild
-    table.unique(['internal_channel', 'external_guild']);
+    table.unique(['internal_channel', 'external_channel']);
   });
 }
 
