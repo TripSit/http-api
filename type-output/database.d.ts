@@ -63,6 +63,15 @@ export enum ExperienceType {
   Voice = 'VOICE',
 }
 
+export enum ReactionRoleType {
+  Color = 'COLOR',
+  PremiumColor = 'PREMIUM_COLOR',
+  Mindset = 'MINDSET',
+  Pronoun = 'PRONOUN',
+  Notification = 'NOTIFICATION',
+  Custom = 'CUSTOM',
+}
+
 export enum TicketStatus {
   Open = 'OPEN',
   Owned = 'OWNED',
@@ -172,6 +181,7 @@ export type DiscordGuilds = {
   created_at: Date;
   partner: boolean;
   supporter: boolean;
+  premium_role_ids: string | null;
 };
 
 export type DrugArticles = {
@@ -283,10 +293,12 @@ export type ReactionRoles = {
   id: string;
   guild_id: string;
   channel_id: string;
-  message_id: string;
-  reaction_id: string;
+  message_id: string | null;
+  reaction_id: string | null;
   role_id: string;
   created_at: Date;
+  type: ReactionRoleType;
+  name: string;
 };
 
 export type RpgInventory = {
