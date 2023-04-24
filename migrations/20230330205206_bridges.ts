@@ -101,18 +101,9 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  if (await knex.schema.hasColumn('discordGuilds', 'team_role_id') === true) {
-    await knex.schema.alterTable('discordGuilds', table => {
-      table.dropColumn('team_role_id');
-    });
-  }
-
   if (await knex.schema.hasColumn('discordGuilds', 'premium_role_id') === true) {
     await knex.schema.alterTable('discordGuilds', table => {
       table.dropColumn('premium_role_ids');
-    });
-    await knex.schema.alterTable('discordGuilds', table => {
-      table.dropColumn('team_role_ids');
     });
   }
 
