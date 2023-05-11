@@ -12,6 +12,9 @@ let server: ApolloServer;
 let knex: Knex;
 let discordApi: DiscordApi;
 let lsdId: string;
+
+const drugName = 'barcardi brainmelt';
+
 beforeAll(async () => {
   knex = createTestKnex();
   server = createTestServer();
@@ -41,7 +44,7 @@ describe('Mutation', () => {
       `,
       variables: {
         drugId: lsdId,
-        name: 'barcardi brainmelt',
+        name: drugName,
         type: 'SUBSTITUTIVE',
       },
     }, {
@@ -53,7 +56,7 @@ describe('Mutation', () => {
     expect(body.singleResult.data).toEqual({
       createDrugName: {
         id: expect.stringMatching(uuidPattern),
-        name: 'barcardi brainmelt',
+        name: drugName,
         type: 'SUBSTITUTIVE',
       },
     });
@@ -88,7 +91,7 @@ describe('Mutation', () => {
       .toBe(false);
     expect(
       (body.singleResult.data!.setDefaultDrugName as DrugNameRecord[])
-        .find(name => name.name === 'barcardi brainmelt')
+        .find(name => name.name === drugName)
         ?.isDefault,
     )
       .toBe(true);

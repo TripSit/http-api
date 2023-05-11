@@ -10,9 +10,11 @@ module.exports = {
   },
   extends: [
     'airbnb-base',
+    'plugin:sonarjs/recommended',
   ],
   plugins: [
     '@typescript-eslint',
+    'sonarjs',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -26,8 +28,13 @@ module.exports = {
     // Removes () around single parameter arrow functions
     'arrow-parens': [2, 'as-needed'],
     // This is a personal preference to enforce good code
-    // '@typescript-eslint/no-non-null-assertion': 'warn',
+    '@typescript-eslint/no-non-null-assertion': 'warn',
+    // Enforce max line length of 120
     'max-len': ['warn', { code: 120 }],
+    // Allow allow any on objects, require definition of types
+    '@typescript-eslint/no-explicit-any': 'warn',
+    // The following will show up as errors, just want to get this pushed for now
+    'sonarjs/cognitive-complexity': ['warn', 50],
   },
 
   overrides: [
@@ -36,7 +43,9 @@ module.exports = {
       extends: [
         'airbnb-base',
         'airbnb-typescript/base',
+        'plugin:sonarjs/recommended',
       ],
+      parser: '@typescript-eslint/parser',
       parserOptions: {
         project: './tsconfig.json',
       },
@@ -47,37 +56,15 @@ module.exports = {
         // Removes () around single parameter arrow functions
         'arrow-parens': [2, 'as-needed'],
         // This is a personal preference to enforce good code
-        // '@typescript-eslint/no-non-null-assertion': 'warn',
+        '@typescript-eslint/no-non-null-assertion': 'warn',
+        // Enforce max line length of 120
         'max-len': ['warn', { code: 120 }],
-      },
-    },
-    {
-      files: [
-        './tests/**/*.ts',
-        '**/__tests__/*.test.ts',
-        '**/__mocks__/*.ts',
-      ],
-      plugins: ['jest'],
-      env: {
-        'jest/globals': true,
-      },
-    },
-    {
-      files: [
-        './seeds/*.ts',
-      ],
-      rules: {
-        'import/prefer-default-export': 0,
-      },
-    },
-    {
-      files: [
-        './type-output/types.ts',
-      ],
-      rules: {
-        'no-console': 0,
-        'import/no-extraneous-dependencies': [2, { devDependencies: true }],
+        // Allow allow any on objects, require definition of types
+        '@typescript-eslint/no-explicit-any': 'warn',
+        // The following will show up as errors, just want to get this pushed for now
+        'sonarjs/cognitive-complexity': ['warn', 50],
       },
     },
   ],
+
 };

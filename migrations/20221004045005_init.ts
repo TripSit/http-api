@@ -15,6 +15,8 @@ const DRUG_ROAS = [
   'TRANSDERMAL',
 ];
 
+const uuidString = 'uuid_generate_v4()';
+
 export async function up(knex: Knex) {
   await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
 
@@ -23,7 +25,7 @@ export async function up(knex: Knex) {
       table
         .uuid('id')
         .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .defaultTo(knex.raw(uuidString))
         .primary();
 
       table
@@ -108,7 +110,7 @@ export async function up(knex: Knex) {
       table
         .uuid('id')
         .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .defaultTo(knex.raw(uuidString))
         .primary();
 
       table
@@ -169,7 +171,7 @@ export async function up(knex: Knex) {
       table
         .uuid('id')
         .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .defaultTo(knex.raw(uuidString))
         .primary();
 
       table
@@ -286,7 +288,7 @@ export async function up(knex: Knex) {
       table
         .uuid('id')
         .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .defaultTo(knex.raw(uuidString))
         .primary();
 
       table
@@ -346,7 +348,7 @@ export async function up(knex: Knex) {
       table
         .uuid('id')
         .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .defaultTo(knex.raw(uuidString))
         .primary();
 
       table
@@ -382,7 +384,7 @@ export async function up(knex: Knex) {
       table
         .uuid('id')
         .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .defaultTo(knex.raw(uuidString))
         .primary();
 
       table.text('summary');
@@ -409,7 +411,7 @@ export async function up(knex: Knex) {
       table
         .uuid('id')
         .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .defaultTo(knex.raw(uuidString))
         .primary();
 
       table
@@ -445,7 +447,7 @@ export async function up(knex: Knex) {
       table
         .uuid('id')
         .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .defaultTo(knex.raw(uuidString))
         .primary();
 
       table
@@ -492,7 +494,7 @@ export async function up(knex: Knex) {
       table
         .uuid('id')
         .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .defaultTo(knex.raw(uuidString))
         .primary();
 
       table
@@ -531,7 +533,7 @@ export async function up(knex: Knex) {
       table
         .uuid('id')
         .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .defaultTo(knex.raw(uuidString))
         .primary();
 
       table
@@ -572,7 +574,7 @@ export async function up(knex: Knex) {
       table
         .uuid('id')
         .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .defaultTo(knex.raw(uuidString))
         .primary();
 
       table
@@ -622,7 +624,7 @@ export async function up(knex: Knex) {
       table
         .uuid('id')
         .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .defaultTo(knex.raw(uuidString))
         .primary();
 
       table
@@ -646,7 +648,7 @@ export async function up(knex: Knex) {
       table
         .uuid('id')
         .notNullable()
-        .defaultTo(knex.raw('uuid_generate_v4()'))
+        .defaultTo(knex.raw(uuidString))
         .primary();
 
       table

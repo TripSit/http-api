@@ -15,6 +15,10 @@ let server: ApolloServer;
 let knex: Knex;
 let discordApi: DiscordApi;
 let testUsers: TestUsers;
+
+const avatarUrl = 'https://example.com/discord-avatar-url';
+const reason = 'Is a rad dude';
+
 beforeAll(async () => {
   knex = createTestKnex();
   server = createTestServer();
@@ -144,7 +148,7 @@ describe('Query', () => {
         id: testUsers.sevenCats.discordId,
         username: 'SevenCats',
         discriminator: '1203',
-        avatarUrl: 'https://example.com/discord-avatar-url',
+        avatarUrl,
       });
 
       const { body } = await server.executeOperation({
@@ -358,7 +362,7 @@ describe('User', () => {
       id: testUsers.sevenCats.discordId,
       username: 'SevenCats',
       discriminator: '1203',
-      avatarUrl: 'https://example.com/discord-avatar-url',
+      avatarUrl,
     });
 
     const { body } = await server.executeOperation({
@@ -391,7 +395,7 @@ describe('User', () => {
           id: 'sevencatsDiscordId',
           username: 'SevenCats',
           discriminator: '1203',
-          avatarUrl: 'https://example.com/discord-avatar-url',
+          avatarUrl,
         },
       }],
     });
@@ -407,8 +411,8 @@ describe('User', () => {
         userId: testUsers.ajar.id,
         createdBy: testUsers.moonBear.id,
         type: 'NOTE',
-        description: 'Is a rad dude',
-        internalNote: 'Is a rad dude',
+        description: reason,
+        internalNote: reason,
       })
       .returning('id')
       .then(([record]) => record.id);
@@ -442,8 +446,8 @@ describe('User', () => {
         actions: [{
           id: userActionId,
           type: 'NOTE',
-          description: 'Is a rad dude',
-          internalNote: 'Is a rad dude',
+          description: reason,
+          internalNote: reason,
         }],
       }],
     });

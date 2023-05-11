@@ -260,3 +260,5 @@ export async function seed(knex: Knex) {
       durationAfterEffectsMax: parseDuration('after effects', 'max', roa.duration),
     }))));
 }
+
+export default seed;
