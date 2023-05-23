@@ -12,14 +12,15 @@
     "jest:unit": "NODE_ENV=test jest -c jest.unit.config.ts",
     "jest:integration": "NODE_ENV=test jest -ic jest.integration.config.ts",
     "migrate": "knex migrate:latest",
-    "migrate:make": "knex migrate:make moodle -x ts --",
+    "migrate:make": "knex migrate:make appeals -x ts --",
     "seed": "knex seed:run",
     "seed:make": "knex seed:make -x ts --",
     "update-tb-db": "ts-node --transpile-only ./scripts/updateTBDBTypes.ts",
     "generate-app-tokens": "ts-node --transpile-only ./scripts/generate-app-tokens.ts",
     "reset-db": "knex migrate:rollback --all && knex migrate:latest && npm run db-types && npm run lint && npm run update-tb-db && npm run seed ",
     "db-types": "ts-node --transpile-only ./type-output/types.ts",
-    "sonar-scanner": "sonar-scanner"
+    "docker-rebuild": "docker compose up -d --force-recreate --build",
+    "logs": "docker container logs tripsit_db -f -n 100"
   },
   "authors": [
     "SevenCats <sevencats@tripsit.me>",
